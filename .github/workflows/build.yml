@@ -1,0 +1,36 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: রিপো checkout করা
+        uses: actions/checkout@v4
+
+      - name: zip ফাইল extract করা
+        run: unzip -o NoMediaFix.zip
+
+      - name: JDK 17 সেটআপ করা
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: gradlew কে executable করা
+        run: chmod +x NoMediaFix/gradlew
+
+      - name: APK build করা
+        working-directory: NoMediaFix
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: APK আপলোড করা (এখান থেকেই ডাউনলোড করা যাবে)
+        uses: actions/upload-artifact@v4
+        with:
+          name: nomedia-fix-debug-apk
+          path: NoMediaFix/app/build/outputs/apk/debug/*.apk
